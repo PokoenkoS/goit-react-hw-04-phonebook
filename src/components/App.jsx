@@ -13,16 +13,8 @@ const [contacts,setContacts] = useState(() => {
 });
 const [filter, setFilter] = useState('');
 
-
- useEffect(() => {
-  const localContact = localStorage.getItem('contacts');
- if (localContact) setContacts( JSON.parse(localContact))
- 
- }, []);
-
  useEffect(() => {
   contacts && localStorage.setItem('contacts',JSON.stringify(contacts) )
- 
  
  }, [contacts]);
 
@@ -37,7 +29,7 @@ if (dublicateContact(data)) {
   }
   
   setContacts((prev) => [contact, ...prev])
-  console.log(contacts);
+ 
 }
 
 const dublicateContact = data => {
@@ -45,13 +37,10 @@ const dublicateContact = data => {
    || item.number === data.number )
 }
 
-const changeFilter = e => { 
-  return  setFilter({filter: e.currentTarget.value})
+const changeFilter = e => setFilter( e.currentTarget.value);
 
-  
-};
 const getFilterContact =()=> {
-  console.log(contacts);
+ 
   const normalizedFilter = filter.toLowerCase(); 
   const filterContacts= contacts.filter(({ name, number }) => {
     const normalizedName = name.toLocaleLowerCase()
@@ -60,7 +49,7 @@ const getFilterContact =()=> {
     return result;
     
   })
-  return filterContacts
+  return filterContacts;
   
 }
 
