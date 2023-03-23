@@ -7,13 +7,16 @@ import Filter from "./Filter";
 import { MainDiv } from "./Main.styled";
 
 export const  App =()=>{
-const [contacts,setContacts] = useState([]);
-const [filter, setfilter] = useState('');
+const [contacts,setContacts] = useState(() => {
+  const value = JSON.parse(localStorage.getItem("contacts"));
+  return value ?? [];
+});
+const [filter, setFilter] = useState('');
 
 
  useEffect(() => {
   const localContact = localStorage.getItem('contacts');
- if (localContact) setContacts( JSON.parse(contacts))
+ if (localContact) setContacts( JSON.parse(localContact))
  
  }, []);
 
@@ -21,7 +24,7 @@ const [filter, setfilter] = useState('');
   contacts && localStorage.setItem('contacts',JSON.stringify(contacts) )
  
  
- }, []);
+ }, [contacts]);
 
 const formSubmitHendler = data => {
  
@@ -33,9 +36,8 @@ if (dublicateContact(data)) {
     ...data
   }
   
-  setContacts(prevState => ({
-    contacts:[contact, ...prevState.contacts]
-  }))
+  setContacts((prev) => [contact, ...prev])
+  console.log(contacts);
 }
 
 const dublicateContact = data => {
@@ -44,26 +46,30 @@ const dublicateContact = data => {
 }
 
 const changeFilter = e => { 
-  return  setContacts({filter: e.currentTarget.value})
+  return  setFilter({filter: e.currentTarget.value})
 
   
 };
 const getFilterContact =()=> {
-  const normalizedFilter = contacts.filter.toLowerCase(); 
-  return contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter)
-   || contact.number.toLowerCase().includes(normalizedFilter));
+  console.log(contacts);
+  const normalizedFilter = filter.toLowerCase(); 
+  const filterContacts= contacts.filter(({ name, number }) => {
+    const normalizedName = name.toLocaleLowerCase()
+    const normalizedNumber = number.toLocaleLowerCase()
+    const result = normalizedName.includes(normalizedFilter) || normalizedNumber.includes(normalizedFilter);
+    return result;
+    
+  })
+  return filterContacts
+  
 }
 
 const deleteContact = (id) => {
-  setContacts(prevState=>({
-    contacts: prevState.contacts.filter(item=> item.id !== id)
-  }))
+  setContacts((prev)=>{
+   const newContacts = prev.filter((item) => item.id !== id)
+   return newContacts
+  })
 }
-
-
-  
-    
-    const visibleContact = getFilterContact();
 
     return (
       <MainDiv>
@@ -71,7 +77,7 @@ const deleteContact = (id) => {
      <Form onSubmit ={formSubmitHendler}/>
      <h2>Contacts</h2>
      <Filter value={filter} onChange={changeFilter}/>
-     <ContactList contacts={visibleContact} onDeleteContact={deleteContact}/>
+     <ContactList items={getFilterContact()} onDeleteContact={deleteContact}/>
      </MainDiv>
     )
   }
